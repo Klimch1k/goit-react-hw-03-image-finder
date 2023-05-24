@@ -11,6 +11,7 @@ export default class App extends Component {
     searchValue: '',
     page: 1,
     status: 'idle',
+    totalHits: null,
   };
 
 
@@ -28,11 +29,14 @@ export default class App extends Component {
         `https://pixabay.com/api/?q=${this.state.searchValue}&page=${this.state.page}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`
       )
         .then(res => res.json())
-        .then(data =>
-          this.setState({
-            images: [...this.state.images, ...data.hits],
-            status: 'resolved',
-          })
+        .then(data => {
+          console.log(data);
+           return this.setState({
+             images: [...this.state.images, ...data.hits],
+             status: 'resolved',
+             totalHits: data.totalHits,
+           });}
+          
         );
     }
   }
@@ -46,7 +50,7 @@ export default class App extends Component {
   };
 
   render() {
-    const { images, status } = this.state;
+    const { images, status, totalHits } = this.state;
     const { handleFormSubmit, toggleModal, handleLoadMore } = this;
 
     if (status === 'idle') {
@@ -80,7 +84,9 @@ export default class App extends Component {
               toggle={toggleModal}
               showModal={this.state.showModal}
             />
-            <LoadMore onClick={handleLoadMore}></LoadMore>
+            {images.length < totalHits && (
+              <LoadMore onClick={handleLoadMore}></LoadMore>
+            )}
           </Container>
         </>
       );
